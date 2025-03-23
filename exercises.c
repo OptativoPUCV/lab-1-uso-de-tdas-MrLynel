@@ -77,14 +77,13 @@ posiciona en el elemento anterior.
 */
 
 void eliminaElementos(List *L, int elem) {
-    int *dato = (int*)first(L);
-    while (dato != NULL) {
-        if (*dato == elem) {
-            popCurrent(L); 
-        } else {
-            dato = (int*)next(L);
-        }
-    }
+   int *dato = first(L);
+   while (dato != NULL) { 
+       if (*dato == elem) {
+           popCurrent(L); 
+       }
+       dato = next(L); 
+   }
 }
 
 
@@ -121,33 +120,37 @@ paraéntesis balanceados. Retorna 1 si están balanceados,
 
 int parentesisBalanceados(char *cadena) {
    Stack* P = create_stack();
-   int i;
-   
+   int i; 
+
    for (i = 0; cadena[i] != '\0'; i++) {
        if (cadena[i] == '(' || cadena[i] == '{' || cadena[i] == '[') {
-           char *p = (char*)malloc(sizeof(char));
-           *p = cadena[i];
+           char *p = (char*)malloc(sizeof(char)); 
+           *p = cadena[i]; 
            push(P, p);
        } else if (cadena[i] == ')' || cadena[i] == '}' || cadena[i] == ']') {
            char *topElem = (char*)pop(P);
-           if (topElem == NULL) return 0; // Si la pila está vacía, no está balanceado
-           
-           // Verificar si los paréntesis coinciden
+           if (topElem == NULL) {
+               free(P);
+               return 0;
+           }
+
            if ((cadena[i] == ')' && *topElem != '(') ||
                (cadena[i] == '}' && *topElem != '{') ||
                (cadena[i] == ']' && *topElem != '[')) {
                free(topElem);
-               return 0; // No están balanceados
+               free(P);
+               return 0; //no hay balace
            }
            free(topElem);
        }
    }
-   
-   // Si la pila no está vacía al final, los paréntesis no están balanceados
-   int resultado = (top(P) == NULL);
-   
-   while (pop(P) != NULL); // Vaciar la pila
-   free(P);
-   
-   return resultado;
+
+
+   if (top(P) != NULL) { //si quedan es porq no esta balanceado
+       free(P); 
+       return 0;
+   }
+
+   free(P); 
+   return 1; 
 }
