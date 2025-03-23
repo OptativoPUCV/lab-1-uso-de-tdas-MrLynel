@@ -29,7 +29,7 @@ void imprime_y_vacia_pila(Stack *P) {
    printf("[");
    while((dato = pop(P)) != NULL) {
       printf("%d ", *(int*)dato);
-   }
+   } 
    printf("]\n");
 }
 
@@ -43,7 +43,13 @@ Al finalizar retorna la lista creada.
 
 List* crea_lista() {
    List* L = create_list();
-   return L;
+   int i;
+   for (i = 1; i <= 10; i++) {
+       int* num = (int*)malloc(sizeof(int)); // reservo la mem para cada elemento
+       *num = i;
+       pushBack(L, num); // pushback porque sino la lista quedaria  10,9,8,7,6,5,4,3,2,1 entonces con pushback quedaria 1,2,3,4,5,6,7,8,9,10
+   }
+   return L; //retorno la lista 
 }
 
 /*
@@ -52,7 +58,13 @@ Crea una función que reciba una lista de enteros (int*) y
 retorne la suma de sus elementos.
 */
 int sumaLista(List *L) {
-   return 0;
+   int suma = 0;
+   int *dato = (int*)first(L);
+   while (dato != NULL) {    //mientras la lista no termine entonces...
+       suma += *dato;   // a la sumatoria le sumo el dato actual
+       dato = (int*)next(L); // avanzo al siguente dato
+   }
+   return suma; //retorno la suma total
 }
 
 /*
@@ -64,9 +76,17 @@ Asume que popCurrent luego de eliminar un elemento se
 posiciona en el elemento anterior.
 */
 
-void eliminaElementos(List*L, int elem){
-
+void eliminaElementos(List *L, int elem) {
+    int *dato = (int*)first(L);
+    while (dato != NULL) {
+        if (*dato == elem) {
+            popCurrent(L); 
+        } else {
+            dato = (int*)next(L);
+        }
+    }
 }
+
 
 /*
 Ejercicio 4.
@@ -76,6 +96,20 @@ Puedes usar una pila auxiliar.
 */
 
 void copia_pila(Stack* P1, Stack* P2) {
+   Stack* aux = create_stack();
+   void* dato;
+
+
+   while ((dato = pop(P1)) != NULL) {
+       push(aux, dato); // paso los datos a la aux (se invierte)
+   }
+
+   while ((dato = pop(aux)) != NULL) {
+       push(P1, dato); // como ya esta invertida al devolverla a p1 y p2 en caso de p1 vuelve a la normalidad
+       push(P2, dato); // y en caso de p2 queda igual a p1
+   }
+
+   free(aux); //limpio la aux
 }
 
 /*
@@ -86,6 +120,34 @@ paraéntesis balanceados. Retorna 1 si están balanceados,
 */
 
 int parentesisBalanceados(char *cadena) {
-   return 0;
+   Stack* P = create_stack();
+   int i;
+   
+   for (i = 0; cadena[i] != '\0'; i++) {
+       if (cadena[i] == '(' || cadena[i] == '{' || cadena[i] == '[') {
+           char *p = (char*)malloc(sizeof(char));
+           *p = cadena[i];
+           push(P, p);
+       } else if (cadena[i] == ')' || cadena[i] == '}' || cadena[i] == ']') {
+           char *topElem = (char*)pop(P);
+           if (topElem == NULL) return 0; // Si la pila está vacía, no está balanceado
+           
+           // Verificar si los paréntesis coinciden
+           if ((cadena[i] == ')' && *topElem != '(') ||
+               (cadena[i] == '}' && *topElem != '{') ||
+               (cadena[i] == ']' && *topElem != '[')) {
+               free(topElem);
+               return 0; // No están balanceados
+           }
+           free(topElem);
+       }
+   }
+   
+   // Si la pila no está vacía al final, los paréntesis no están balanceados
+   int resultado = (top(P) == NULL);
+   
+   while (pop(P) != NULL); // Vaciar la pila
+   free(P);
+   
+   return resultado;
 }
-
